@@ -1,0 +1,99 @@
+express : Node.js. 웹 프레임워크
+
+react : javascript 라이브러리
+
+react-dom : 리액트를 브라우저에 렌더링하기 위한 모듈
+
+babel-(***) : 바벨은 모던 자바스크립트 문법을 지원하지 않는 브라우저에서 내용을 제대로  표기하기 위해 
+자동으로 해당 브라우저가 해석가능한 문법으로 변환시켜주는 모듈입니다.
+
+*preset-stage-2 를 통해 실험적인 문법을 사용할 수 있다.(ex - 리액트 컴포넌트 state를 정의할때 class안에 
+state ={...}로 간단하게 정의할 수 있음)
+
+clean-webpack-plugin : 프로젝트를 배포하기 위해 build할때, 기존에 만들어져 있던 build 폴더를 삭제하고
+새로 build하도록 도와주는 모듈이다. 이를 사용하지 않으면 build를 여러번 했을 경우 코드가 꼬이는 현상이
+발생할 수 도 있다.
+
+concurrently : npm scripts 안에서 다른 스크립트를 사용할 수 있도록 하는 모듈이다.
+
+css-loader, style-loader : CSS스타일을 프로젝트에서 불러와 사용할 수 있도록 하는 모듈이다.
+
+html-webpack-plugin : build 과정을 통해 html파일로 번들링하는 모듈이다.
+
+nodemon : 서버측 코드의변화가 있을 때 마다 서버를 자동으로 재시작해주는 모듈이다.
+
+webpack : entry 포인트를 기점으로 연결된 많은 파일들을 하나 또는 소수의 파일로 번들링 해 주는 모듈
+번들러이다.
+
+webpack-cli : webpack 에 관한 설정을 설정파일(webpack.config.js) 을 통해 적용할 수 있도록하는 모듈이다.
+
+webpack-dev-server : 웹팩을 개발 전용 서버이다.
+
+
+1. .babelrc 생성
+{
+    "presets": ["env", "react", "stage-2"]
+}
+위의 설정을 통해 babel 이 env.react, stage-2의 프리셋을 적용한다.
+
+2. 디렉토리 구조이해
+src 폴더 생성 src 하위에 client, server폴더를 각각 생성
+client - front-end와 관련된 파일들이 위치
+server - 서버와 관련된 파일들이 위치
+루트디렉토리에 public디렉토리 생성후 리액트가 렌더링할 대상인 index.html파일을 만들어준다.
+
+3. webpack 설정 파일 생성
+루트 경로에 webpack.config.js 파일을 생성
+
+코드의 8번째줄 번들링을 시작할 엔트리 포인드를 지정해준다.
+해당 예시에서 src/client/index.js파일로 지정 해당 파일로부터 require, import 되는 파일들을 
+하나의 파일로 번들링함
+
+9번째 줄은 번들링 되서 나오는 결과물에 대한 설정이다.
+output.path는 번들링되서 파일이 위치할 디렉토리를 설정하는 것으로 5번째 줄에서 정의한 dist라는 이름을 가진
+경로에 output을 위치시키겠다는 설정이다.
+output.filename은 번들링되서 나오는 결과물의 이름을 지정하는 설정
+
+13번째 줄의 module 설정은 어떤 로더를 사용하여 파일을 읽어오는지 설정하는 부분이다.
+rules의 첫번째 아이템은js파일을 babel-loader를 통해 읽어오겠다는 설정이며, 두번째 아이템은 css파일을 
+css-loader, style-loader를 통해 읽어오겟다는 설정이다.
+
+28번째 줄의 devServer설정은 개발모드일때 적용되는 설정으로, devServer.port는 개발포트를 지정하는 설정
+devServer.open은 bool값으로 true라면 개발서버가 실행되었을때 자동으로 브라우저를 열어 표시한다.
+devServer.proxy설정은 개발서버에서 백앤드 API 의 서버 주소가 다를경우 사용하는 옵션이다.
+
+35번째 줄의 plugins는 webpack의 추가적인 플러그인을 사용하도록 설정하는 부분
+36줄에서 clean-webpack-plugin을 사용하여 build시 기존에 있던 build폴더를 삭제하고 새롭게 build하도록
+설정했고,
+37번째 줄에서는 html-webpack-plugin을 사용하여 html로 번들링하도록 설정했다
+*html-webpack-plugin을 통해 페이지에 아이콘을 삽입하고 싶다면 favicon : "./public/favicon.ico" 구문을 통해 삽이가능
+
+4. nodemon을 위한 설정 파일 생성
+{
+  "watch": ["src/server/"]
+}
+src/server하위에 있는 파일들을 감시하여 변화가 생길 시 서버를 재시작 하도록 하는 설정
+
+5. 서버측 express 파일 작성
+
+5번째 줄에서 번들링을 통해 생성된 dist폴더의 파일들을 서비스 하도록 설정했습니다.
+- 개발모드일 때는 정적으로 서비스 하지 않고 클라이언트와 서버를 통시에 실행한다.
+7번째 줄은 api를 예시로 적은 것으로 위와 같은 api를 생성하면 된다.
+10번째 줄은 서버가 리스닝하는 포트이다. 위의 코드에서 8080포트를 리스닝했다.
+*proxy와 연관
+
+6. 클라이언트 측 코드 작성
+
+7. npm script 수정
+
+npm run client - webpack-dev-server를 실행하는 코드 --mode development
+npm run server - 개발모드일 때 서버를 실행시키는 코드로 nodemon을 통해 파일 변화가 일어나면 자동으로
+서버를 재시작함
+npm run dev - 개발모드일 때 클라이언트 측 개발서버를 실행하고, 서버를 실행하는 코드를 동시에 진행하는
+스크립트
+concurrently 모듈을 이용하여 npm run server, npm run client를 동시에실행
+이를 통해 개발모들일때 npm run dev를 통해 클라이언트 서버를 같이 실행시킬수 있다.
+
+npm run build - 배포모드로 코드를 번들링하는 스크립트이다. 
+npm run start - 서버를 실행합니다. (서버측 코드에서 번들링된 html 파일을 정적으로 서비스 하기 때문에 
+서버만 실행해도 정상적으로 클라이언트 컴포넌트들이 렌더링 된다.)
